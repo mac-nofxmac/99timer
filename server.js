@@ -21,7 +21,7 @@ if (!fs.existsSync('./public/fonts')) {
 }
 
 // Upload route
-app.post('/upload-font', upload.single('font'), (req, res) => {
+app.post('/upload-font', upload.single('font'), (req, res) => { // Handles font file uploads. Depends on: multer, express.
     res.send({ success: true, filename: req.file.originalname });
 });
 
@@ -44,7 +44,7 @@ let interval;
 let isPaused = false;
 
 io.on('connection', (socket) => {
-    // Send current state to new clients
+    // Send current state to new clients. Depends on: socket.io, timerState.
     socket.emit('update', timerState);
 
     socket.on('start', (timeInSeconds) => {
@@ -67,21 +67,21 @@ io.on('connection', (socket) => {
         }, 1000);
     });
   
-    socket.on('pauseToggle', (pauseState) => {
+    socket.on('pauseToggle', (pauseState) => { // Toggles the pause state of the timer. Depends on: socket.io, timerState.
     isPaused = pauseState;
     timerState.paused = pauseState;  // keep in sync
     io.emit('update', timerState);
 });
 
     
-	socket.on('stop', () => {
+	socket.on('stop', () => { // Stops the timer. Depends on: socket.io, timerState.
         timerState.running = false;
         io.emit('update', timerState);
         clearInterval(interval);
     });
 
-   socket.on('reset', () => {
-    timerState.time = 0;
+   socket.on('reset', () => { // Resets the timer to 0. Depends on: socket.io, timerState.
+       timerState.time = 0;
     timerState.running = false;      // auto-resume
     timerState.paused = false;      // reset pause state in timerState
     isPaused = false;               // reset internal flag
@@ -102,14 +102,14 @@ io.on('connection', (socket) => {
 });
 
 
-    socket.on('setCustomFont', ({ name, url }) => {
+    socket.on('setCustomFont', ({ name, url }) => { // Sets a custom font for the timer display. Depends on: socket.io, timerState.
         timerState.customFont = { name, url };
         io.emit('update', timerState);
     });
 
 
-    socket.on('setFont', ({ size, color, family, warningThreshold, warningColor }) => {
-    if (size) timerState.fontSize = size;
+    socket.on('setFont', ({ size, color, family, warningThreshold, warningColor }) => { // Sets font attributes for the timer display. Depends on: socket.io, timerState.
+        if (size) timerState.fontSize = size;
     if (color) timerState.fontColor = color;
     if (family) timerState.fontFamily = family;
     if (warningThreshold !== undefined) timerState.warningThreshold = warningThreshold;
@@ -118,7 +118,7 @@ io.on('connection', (socket) => {
 });
 
 
-    socket.on('resetFont', ({ size, color, family }) => {
+    socket.on('resetFont', ({ size, color, family }) => { // Resets the font to default settings. Depends on: socket.io, timerState.
         timerState.fontSize = size;
         timerState.fontColor = color;
         timerState.fontFamily = family;
@@ -131,4 +131,3 @@ io.on('connection', (socket) => {
 http.listen(9959, () => {
     console.log('Server running at http://localhost:9959');
 });
-
