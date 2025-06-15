@@ -99,6 +99,18 @@
         .button-group {
             margin-bottom: 20px;
         }
+
+        @keyframes flashRed {
+            0%, 100% {
+                color: #ff0000;
+            }
+
+            50% {
+                color: #990000;
+            }
+        }
+
+        .flashing { animation: flashRed 1s infinite; }
     </style>
 </head>
 <body>

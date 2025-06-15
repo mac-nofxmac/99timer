@@ -83,10 +83,10 @@ socket.on('update', (state) => { // Updates the preview timer in the control pan
         previewEl.textContent = `${mins}:${secs}`;
 
         // Style updates
-        if (state.time <= 0 && state.time >= -3600) {
+        if (state.time <= 0 && state.time >= -3600) { // Apply flashing red for times <= 0
             previewEl.classList.add('flashing');
         } else {
-            previewEl.classList.remove('flashing');
+            previewEl.classList.remove('flashing'); // Remove flashing if time > 0
             if (state.time <= state.warningThreshold && state.time > 0) {
                 previewEl.style.color = state.warningColor;
             } else {
@@ -277,15 +277,15 @@ function updatePreviewAppearance(state) { // Updates the appearance of the time 
     previewEl.style.color = state.fontColor;
     previewEl.style.fontFamily = state.customFont?.name || state.fontFamily;
 
-    // Optional: apply flashing or warning color
-    const currentTime = state.time;
-    if (state.warningThreshold && currentTime <= state.warningThreshold && currentTime > 0) {
+    // Apply flashing or warning color
+    if (state.time <= 0 && state.time >= -3600) { // Time is at or below zero
+        previewEl.classList.add('flashing'); // Add flashing class
+        previewEl.style.color = '#ff0000'; // Explicitly set color to red (or desired flashing color)
+    } else if (state.warningThreshold && state.time <= state.warningThreshold && state.time > 0) {
         previewEl.style.color = state.warningColor;
-        previewEl.classList.remove('flashing');
-    } else if (currentTime <= 0) {
-        previewEl.classList.add('flashing');
     } else {
         previewEl.classList.remove('flashing');
+        previewEl.style.color = state.fontColor; // Revert to default color
     }
 }
 
