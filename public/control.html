@@ -1,108 +1,175 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Timer Control</title>
-	<link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        input[type="color"] {
+            width: 50px;
+            height: 34px;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #previewContainer {
+            width: 320px;
+            height: 180px;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #timePreview {
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            white-space: nowrap;
+            transform: scale(1);
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
+        }
+
+        #livePreviewToggle {
+            margin-right: 5px;
+        }
+
+        .button-group {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Control Panel</h1>
-	
-<label>
-  Minutes:
-  <input type="number" id="minutesInput" value="1" min="0" max="99">
-</label>
-<label>
-  Seconds:
-  <input type="number" id="secondsInput" value="0" min="0" max="59">
-</label>
 
-<div>
-  <button type="button" onclick="setPreset(10, 0)">10:00</button>
-  <button type="button" onclick="setPreset(5, 0)">05:00</button>
-  <button type="button" onclick="setPreset(1, 0)">01:00</button>
-</div>
+    <div class="button-group">
+        <button type="button" onclick="setPreset(10, 0)">10:00</button>
+        <button type="button" onclick="setPreset(5, 0)">05:00</button>
+        <button type="button" onclick="setPreset(1, 0)">01:00</button>
+    </div>
 
-<style>
-  button {
-    margin: 4px;
-    padding: 6px 12px;
-    font-size: 1rem;
-    font-weight: bold;
-  }
-</style>
+    <label>Minutes: <input type="number" id="minutesInput" value="1" min="0" max="99"></label>
+    <label>Seconds: <input type="number" id="secondsInput" value="0" min="0" max="59"></label>
 
-<label>
-  <input type="checkbox" id="livePreviewToggle" />
-  📺 Show Live Preview
-</label>
+    <label><input type="checkbox" id="livePreviewToggle"> 📺 Show Live Preview</label>
 
-<p>
-<div id="previewContainer">
-  <div id="timePreview">00:00</div>
-</div>
+    <div id="previewContainer">
+        <div id="timePreview">00:00</div>
+    </div>
 
-</p>
-
-
-
-    <p> </p>
-    <label>
-        Font Family:
+    <h3>Font Settings</h3>
+    <label>Font Family:
         <select id="fontFamilySelect">
+            <option value="Roboto, sans-serif">Roboto</option>
             <option value="Arial, sans-serif">Arial</option>
             <option value="Verdana, sans-serif">Verdana</option>
             <option value="'Courier New', monospace">Courier New</option>
             <option value="'Times New Roman', serif">Times New Roman</option>
-            <option value="'Roboto', sans-serif">Roboto</option>
             <option value="'Open Sans', sans-serif">Open Sans</option>
         </select>
-    </label><br><br>
+    </label>
 
+    <label>Font Color: <input type="color" id="fontColorInput" value="#FFFFFF"></label>
+    <label>Font Size (e.g., 10vw, 50vh): <input type="text" id="fontSizeInput" value="30vw"></label>
     <button onclick="applyFont()">Apply Font</button>
 
-    <h3>Upload Custom Font (.ttf or .otf)</h3>
+    <h3>Warning Settings</h3>
+    <label>Warning Threshold (seconds): <input type="number" id="warningThresholdInput" value="30"></label>
+    <label>Warning Color: <input type="color" id="warningColorInput" value="#FFA500"></label>
+
+    <h3>Custom Font</h3>
     <input type="file" id="fontFileInput" accept=".ttf,.otf">
     <button onclick="uploadFont()">Upload & Apply</button>
     <button onclick="resetFont()">Reset to Default Font</button>
 
-    <p> </p>
-    <h3>Font Attributes</h3>
-    <label>Font Color: <input id="fontColorInput" type="color" value="#FFFFFF"></label><br><br>
-    <label>Font Size (e.g., 10vw, 50vh): <input id="fontSizeInput" value="30vw"></label><br><br>
-    <label>Warning Threshold (seconds): <input type="number" id="warningThresholdInput" value="30"></label><br>
-    <label>Warning Color: <input type="color" id="warningColorInput" value="#FFA500"></label><br>
-
-
+    <h3>Timer Controls</h3>
     <button onclick="startTimer()">Start</button>
     <button onclick="stopTimer()">Stop</button>
-	<button id="pauseBtn" onclick="togglePause()"> Pause </button>
+    <button id="pauseBtn" onclick="togglePause()">Pause</button>
     <button onclick="resetTimer()">Reset</button>
-    <button onclick="applyFont()">Apply Font</button>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
-	
-	<script>
-    function updateTimePreview() {
-      const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
-      const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
 
-      const mm = minutes.toString().padStart(2, '0');
-      const ss = seconds.toString().padStart(2, '0');
+    <script>
+        function updateTimePreview() {
+            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+            const mm = minutes.toString().padStart(2, '0');
+            const ss = seconds.toString().padStart(2, '0');
+            document.getElementById('timePreview').textContent = `${mm}:${ss}`;
+        }
 
-      document.getElementById('timePreview').textContent = `${mm}:${ss}`;
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('minutesInput').addEventListener('input', updateTimePreview);
-      document.getElementById('secondsInput').addEventListener('input', updateTimePreview);
-      updateTimePreview();
-    });
-	document.getElementById('livePreviewToggle').addEventListener('change', () => {
-    updateTimePreview();
-    });
-
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('minutesInput').addEventListener('input', updateTimePreview);
+            document.getElementById('secondsInput').addEventListener('input', updateTimePreview);
+            updateTimePreview();
+        });
+        document.getElementById('livePreviewToggle').addEventListener('change', () => {
+            updateTimePreview();
+        });
     </script>
 </body>
 </html>
