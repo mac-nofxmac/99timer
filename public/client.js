@@ -11,7 +11,7 @@ function formatTime(seconds) {
     return `${mins}:${secs}`;
 }
 
-socket.on('update', (state) => {
+socket.on('update', (state) => { // Updates the timer display based on the received state. Depends on: formatTime(), DOM elements ('timer', 'progressBarTop', 'progressBarBottom').
     // Update timer display
     if (timerEl) {
         timerEl.textContent = formatTime(state.time);
@@ -69,7 +69,7 @@ socket.on('update', (state) => {
 });
 
 
-socket.on('update', (state) => {
+socket.on('update', (state) => { // Updates the preview timer in the control panel. Depends on: DOM elements ('timePreview', 'livePreviewToggle'), updateTimePreview(), updatePreviewAppearance().
     const previewEl = document.getElementById('timePreview');
     const toggleEl = document.getElementById('livePreviewToggle');
 
@@ -83,10 +83,10 @@ socket.on('update', (state) => {
         previewEl.textContent = `${mins}:${secs}`;
 
         // Style updates
-        if (state.time <= 0 && state.time >= -3600) {
+        if (state.time <= 0 && state.time >= -3600) { // Apply flashing red for times <= 0
             previewEl.classList.add('flashing');
         } else {
-            previewEl.classList.remove('flashing');
+            previewEl.classList.remove('flashing'); // Remove flashing if time > 0
             if (state.time <= state.warningThreshold && state.time > 0) {
                 previewEl.style.color = state.warningColor;
             } else {
@@ -103,7 +103,7 @@ socket.on('update', (state) => {
     }
 });
 
-socket.on('update', (state) => {
+socket.on('update', (state) => { // Updates the pause button text. Depends on: DOM element ('pauseBtn').
     const pauseBtn = document.getElementById('pauseBtn');
     if (pauseBtn) {
         pauseBtn.textContent = state.paused ? 'Resume ??' : 'Pause';
@@ -111,11 +111,11 @@ socket.on('update', (state) => {
 });
 
 
-function startTimer() {
+function startTimer() { // Starts the timer with the specified duration. Depends on: DOM elements ('minutesInput', 'secondsInput'), updateTimePreview(), socket.emit('start').
     let minutes = parseInt(document.getElementById('minutesInput').value) || 0;
     let seconds = parseInt(document.getElementById('secondsInput').value) || 0;
 
-    // Clamp seconds to 0–59
+    // Clamp seconds to 0ï¿½59
     if (seconds > 59) seconds = 59;
     if (seconds < 0) seconds = 0;
 
@@ -135,7 +135,7 @@ function startTimer() {
 
 let isPaused = false;
 
-function togglePause() {
+function togglePause() { // Toggles the pause state of the timer. Depends on: socket.emit('pauseToggle'), DOM element ('pauseBtn').
     isPaused = !isPaused;
     socket.emit('pauseToggle', isPaused);
 
@@ -145,11 +145,11 @@ function togglePause() {
 }
 
 
-function stopTimer() {
+function stopTimer() { // Stops the timer. Depends on: socket.emit('stop').
     socket.emit('stop');
 }
 
-function resetTimer() {
+function resetTimer() { // Resets the timer. Depends on: socket.emit('reset').
     socket.emit('reset');
 }
 
@@ -174,7 +174,7 @@ function applyFont() {
 }
 
 
-function uploadFont() {
+function uploadFont() { // Uploads a custom font file. Depends on: DOM element ('fontFileInput'), fetch API, socket.emit('setCustomFont').
     const fileInput = document.getElementById('fontFileInput');
     const file = fileInput.files[0];
     if (!file) {
@@ -219,7 +219,7 @@ function uploadFont() {
         });
 }
 
-function resetFont() {
+function resetFont() { // Resets the font to default settings. Depends on: DOM elements ('fontSizeInput', 'fontColorInput', 'fontFamilySelect'), socket.emit('resetFont').
     const size = document.getElementById('fontSizeInput').value;
     const color = document.getElementById('fontColorInput').value;
     const family = document.getElementById('fontFamilySelect').value;
@@ -234,13 +234,13 @@ function resetFont() {
     document.getElementById('timePreview').style.fontFamily = family;
 }
 
-function updateTimePreview() {
+function updateTimePreview() { // Updates the time preview in the control panel based on input fields. Depends on: DOM elements ('minutesInput', 'secondsInput', 'timePreview').
     let minutesInput = document.getElementById('minutesInput');
     let secondsInput = document.getElementById('secondsInput');
     let minutes = parseInt(minutesInput.value) || 0;
     let seconds = parseInt(secondsInput.value) || 0;
 
-    // Clamp seconds to 0–59
+    // Clamp seconds to 0ï¿½59
     if (seconds > 59) seconds = 59;
     if (seconds < 0) seconds = 0;
 
@@ -264,7 +264,7 @@ function updateTimePreview() {
     document.getElementById('timePreview').textContent = `${mm}:${ss}`;
 }
 
-function updatePreviewAppearance(state) {
+function updatePreviewAppearance(state) { // Updates the appearance of the time preview. Depends on: DOM element ('timePreview').
     const previewEl = document.getElementById('timePreview');
     if (!previewEl) return;
 
@@ -277,20 +277,20 @@ function updatePreviewAppearance(state) {
     previewEl.style.color = state.fontColor;
     previewEl.style.fontFamily = state.customFont?.name || state.fontFamily;
 
-    // Optional: apply flashing or warning color
-    const currentTime = state.time;
-    if (state.warningThreshold && currentTime <= state.warningThreshold && currentTime > 0) {
+    // Apply flashing or warning color
+    if (state.time <= 0 && state.time >= -3600) { // Time is at or below zero
+        previewEl.classList.add('flashing'); // Add flashing class
+        previewEl.style.color = '#ff0000'; // Explicitly set color to red (or desired flashing color)
+    } else if (state.warningThreshold && state.time <= state.warningThreshold && state.time > 0) {
         previewEl.style.color = state.warningColor;
-        previewEl.classList.remove('flashing');
-    } else if (currentTime <= 0) {
-        previewEl.classList.add('flashing');
     } else {
         previewEl.classList.remove('flashing');
+        previewEl.style.color = state.fontColor; // Revert to default color
     }
 }
 
 
-function setPreset(mins, secs) {
+function setPreset(mins, secs) { // Sets preset time values in the input fields. Depends on: DOM elements ('minutesInput', 'secondsInput'), updateTimePreview().
     document.getElementById('minutesInput').value = mins;
     document.getElementById('secondsInput').value = secs;
     updateTimePreview();
