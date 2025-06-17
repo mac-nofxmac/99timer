@@ -1,176 +1,426 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <title>Timer Control</title>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
             color: #333;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        h3 {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #555;
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card h3 {
+            color: #4a5568;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 120px;
+        }
+
+        .form-group.full-width {
+            flex: 1;
         }
 
         label {
-            display: block;
-            margin-bottom: 10px;
             font-weight: 500;
+            color: #4a5568;
+            font-size: 0.9rem;
         }
 
-        input[type="number"],
-        input[type="text"],
+        input[type="number"], 
+        input[type="text"], 
+        input[type="file"], 
         select {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-bottom: 10px;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus, 
+        input[type="text"]:focus, 
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         input[type="color"] {
             width: 50px;
-            height: 34px;
-            vertical-align: middle;
-            margin-left: 5px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
+            height: 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            margin-right: 5px;
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            background-color: #45a049;
+        input[type="color"]:hover {
+            border-color: #667eea;
         }
 
-        #previewContainer {
+        .preset-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd7624;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .preset-btn {
+            background: #4299e1;
+            color: white;
+            padding: 8px 12px;
+            font-size: 13px;
+            min-width: 60px;
+        }
+
+        .preset-btn:hover {
+            background: #3182ce;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .preview-container {
+            background: #000;
+            border-radius: 8px;
             width: 320px;
             height: 180px;
-            background: #000;
             display: flex;
-            justify-content: center;
             align-items: center;
-            margin: 20px auto;
-            border-radius: 8px;
-            overflow: hidden;
+            justify-content: center;
+            margin: 16px 0;
+            border: 2px solid #e2e8f0;
         }
 
-        #timePreview {
+        .preview-time {
             color: white;
             font-size: 48px;
             font-weight: bold;
             text-align: center;
+            font-family: inherit;
+        }
+
+        .flashing {
+            animation: flash 1s infinite;
+        }
+
+        @keyframes flash {
+            0% { color: #ff0000; }
+            50% { color: #990000; }
+            100% { color: #ff0000; }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-buttons {
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            white-space: nowrap;
-            transform: scale(1);
-            -webkit-text-size-adjust: none;
-            text-size-adjust: none;
+            cursor: pointer;
         }
 
-        #livePreviewToggle {
-            margin-right: 5px;
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #e2e8f0;
+            color: #4a5568;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
 
-        .button-group {
-            margin-bottom: 20px;
+        .file-input-label:hover {
+            background: #cbd5e0;
         }
-
-        @keyframes flashRed {
-            0%, 100% {
-                color: #ff0000;
-            }
-
-            50% {
-                color: #990000;
-            }
-        }
-
-        .flashing { animation: flashRed 1s infinite; }
     </style>
 </head>
 <body>
-    <h1>Control Panel</h1>
+    <div class="container">
+        <h1>Timer Control Panel</h1>
+        
+        <!-- Timer Settings Section -->
+        <div class="card">
+            <h3>⏱ Timer Settings</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="minutesInput">Minutes</label>
+                    <input type="number" id="minutesInput" value="1" min="0" max="99">
+                </div>
+                <div class="form-group">
+                    <label for="secondsInput">Seconds</label>
+                    <input type="number" id="secondsInput" value="0" min="0" max="59">
+                </div>
+            </div>
+            
+            <div class="preset-buttons">
+                <button type="button" class="btn preset-btn" onclick="setPreset(1, 0)">01:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(5, 0)">05:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(10, 0)">10:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(20, 0)">20:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(30, 0)">30:00</button>
+            </div>
 
-    <div class="button-group">
-        <button type="button" onclick="setPreset(10, 0)">10:00</button>
-        <button type="button" onclick="setPreset(5, 0)">05:00</button>
-        <button type="button" onclick="setPreset(1, 0)">01:00</button>
+            <div class="checkbox-group">
+                <input type="checkbox" id="livePreviewToggle" />
+                <label for="livePreviewToggle">▣ Show Live Preview</label>
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-time" id="timePreview">00:00</div>
+            </div>
+        </div>
+
+        <div class="two-column">
+            <!-- Font Styling Section -->
+            <div class="card">
+                <h3>⚡ Font Styling</h3>
+                
+                <div class="form-group">
+                    <label for="fontFamilySelect">Font Family</label>
+                    <select id="fontFamilySelect">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fontColorInput">Font Color</label>
+                        <input id="fontColorInput" type="color" value="#FFFFFF">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="fontSizeInput">Font Size</label>
+                        <input id="fontSizeInput" value="30vw" placeholder="e.g., 10vw, 50vh">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="warningThresholdInput">Warning Threshold (seconds)</label>
+                        <input type="number" id="warningThresholdInput" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="warningColorInput">Warning Color</label>
+                        <input type="color" id="warningColorInput" value="#FFA500">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="applyFont()">Apply Font Settings</button>
+            </div>
+
+            <!-- Custom Font Section -->
+            <div class="card">
+                <h3>※ Custom Font Upload</h3>
+                
+                <div class="form-group">
+                    <label>Upload Font File (.ttf or .otf)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fontFileInput" accept=".ttf,.otf">
+                        <div class="file-input-label">Choose Font File</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <button class="btn btn-success" onclick="uploadFont()">Upload & Apply</button>
+                    <button class="btn btn-secondary" onclick="resetFont()">Reset to Default</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Controls Section -->
+        <div class="card">
+            <h3>▶ Timer Controls</h3>
+            <div class="control-buttons">
+                <button class="btn btn-success" onclick="startTimer()">► Start</button>
+                <button class="btn btn-warning" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+                <button class="btn btn-danger" onclick="stopTimer()">■ Stop</button>
+                <button class="btn btn-secondary" onclick="resetTimer()">↻ Reset</button>
+            </div>
+        </div>
     </div>
-
-    <label>Minutes: <input type="number" id="minutesInput" value="1" min="0" max="99"></label>
-    <label>Seconds: <input type="number" id="secondsInput" value="0" min="0" max="59"></label>
-
-    <label><input type="checkbox" id="livePreviewToggle"> 📺 Show Live Preview</label>
-
-    <div id="previewContainer">
-        <div id="timePreview">00:00</div>
-    </div>
-
-    <h3>Font Settings</h3>
-    <label>Font Family:
-        <select id="fontFamilySelect">
-            <option value="Roboto, sans-serif">Roboto</option>
-            <option value="Arial, sans-serif">Arial</option>
-            <option value="Verdana, sans-serif">Verdana</option>
-            <option value="'Courier New', monospace">Courier New</option>
-            <option value="'Times New Roman', serif">Times New Roman</option>
-            <option value="'Open Sans', sans-serif">Open Sans</option>
-        </select>
-    </label>
-
-    <label>Font Color: <input type="color" id="fontColorInput" value="#FFFFFF"></label>
-    <label>Font Size (e.g., 10vw, 50vh): <input type="text" id="fontSizeInput" value="30vw"></label>
-    <button onclick="applyFont()">Apply Font</button>
-
-    <h3>Warning Settings</h3>
-    <label>Warning Threshold (seconds): <input type="number" id="warningThresholdInput" value="30"></label>
-    <label>Warning Color: <input type="color" id="warningColorInput" value="#FFA500"></label>
-
-    <h3>Custom Font</h3>
-    <input type="file" id="fontFileInput" accept=".ttf,.otf">
-    <button onclick="uploadFont()">Upload & Apply</button>
-    <button onclick="resetFont()">Reset to Default Font</button>
-
-    <h3>Timer Controls</h3>
-    <button onclick="startTimer()">Start</button>
-    <button onclick="stopTimer()">Stop</button>
-    <button id="pauseBtn" onclick="togglePause()">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
-
+    
     <script>
         function updateTimePreview() {
             const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
             const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+
             const mm = minutes.toString().padStart(2, '0');
             const ss = seconds.toString().padStart(2, '0');
+
             document.getElementById('timePreview').textContent = `${mm}:${ss}`;
         }
 
@@ -178,7 +428,18 @@
             document.getElementById('minutesInput').addEventListener('input', updateTimePreview);
             document.getElementById('secondsInput').addEventListener('input', updateTimePreview);
             updateTimePreview();
+            
+            // Update file input label when file is selected
+            document.getElementById('fontFileInput').addEventListener('change', function(e) {
+                const label = e.target.nextElementSibling;
+                if (e.target.files.length > 0) {
+                    label.textContent = e.target.files[0].name;
+                } else {
+                    label.textContent = 'Choose Font File';
+                }
+            });
         });
+
         document.getElementById('livePreviewToggle').addEventListener('change', () => {
             updateTimePreview();
         });
