@@ -101,12 +101,23 @@ io.on('connection', (socket) => {
     }, 1000);
 });
 
-socket.on('adjustTime', ({ unit, value }) => { // Adjusts the live timer by a specified amount. Depends on: timerState, socket.io.
+socket.on('adjustTime', ({ unit, value }) => { // Adjusts the live timer by a specified amount, with validation.
+    // --- Server-side functional check: Prevent adjustment if conditions are not met ---
+    // Conditions for prevention:
+    // 1. Timer is neither running nor paused.
+    // 2. Timer time is at or below zero.
+    if ((!timerState.running && !timerState.paused) || timerState.time <= 0) {
+        console.log("Server: Adjustment request rejected. Timer not active or time is zero/negative.");
+        // Optionally, you could emit an 'adjustmentRejected' event back to the client
+        return; // Stop processing this request
+    }
+    // --- End of server-side check ---
+
     if (unit === 'seconds') {
         timerState.time += value;
 
         // Ensure timer doesn't go below a reasonable negative threshold (e.g., -99:59 or -5999 seconds)
-        if (timerState.time < -5999) { // Prevent excessively large negative times
+        if (timerState.time < -5999) {
             timerState.time = -5999;
         }
 
@@ -114,7 +125,7 @@ socket.on('adjustTime', ({ unit, value }) => { // Adjusts the live timer by a sp
         // also adjust originalDuration to keep progress bar consistent for future starts.
         if (!timerState.running) {
             timerState.originalDuration = (timerState.originalDuration || 0) + value;
-            if (timerState.originalDuration < 0) timerState.originalDuration = 0; // Ensure it doesn't go negative
+            if (timerState.originalDuration < 0) timerState.originalDuration = 0;
         }
     }
     io.emit('update', timerState); // Broadcast the updated timer state to all clients

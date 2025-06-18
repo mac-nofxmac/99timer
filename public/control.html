@@ -427,20 +427,20 @@
             </div>
 
             <div class="card">
-                <h3>↔ Live Adjustments</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="liveAdjustMinutesInput">Minutes</label>
-                        <input type="number" id="liveAdjustMinutesInput" value="0" min="0">
+                    <h2>Live Adjustments</h2>
+                    <p>Adjust the live timer by adding or subtracting minutes and seconds.</p>
+                    <div class="input-group">
+                        <label for="liveAdjustMinutesInput" class="form-label">Minutes</label>
+                        <input type="number" id="liveAdjustMinutesInput" min="0" value="0" class="form-control" style="width: 80px; text-align: center;">
                     </div>
-                    <div class="form-group">
-                        <label for="liveAdjustSecondsInput">Seconds</label>
-                        <input type="number" id="liveAdjustSecondsInput" value="0" min="0">
+                    <div class="input-group">
+                        <label for="liveAdjustSecondsInput" class="form-label">Seconds</label>
+                        <input type="number" id="liveAdjustSecondsInput" min="0" value="0" class="form-control" style="width: 80px; text-align: center;">
                     </div>
-                </div>
-                <div class="control-buttons">
-                    <button class="btn btn-primary" onclick="applyTotalLiveAdjustment(false)">Add Adjustment</button>
-                    <button class="btn btn-danger" onclick="applyTotalLiveAdjustment(true)">Subtract Adjustment</button>
+                    <div class="control-buttons" style="margin-top: 15px;">
+                        <button id="addAdjustmentBtn" class="btn btn-primary" onclick="applyTotalLiveAdjustment(false)">Add Adjustment</button>
+                        <button id="subtractAdjustmentBtn" class="btn btn-danger" onclick="applyTotalLiveAdjustment(true)">Subtract Adjustment</button>
+                    </div>
                 </div>
                 <p class="helper-text">
                     Enter minutes and seconds above, then click 'Add' or 'Subtract'.
@@ -452,36 +452,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
     
-    <script>
-        function updateTimePreview() {
-            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
-            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
-
-            const mm = minutes.toString().padStart(2, '0');
-            const ss = seconds.toString().padStart(2, '0');
-
-            document.getElementById('timePreview').textContent = `${mm}:${ss}`;
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('minutesInput').addEventListener('input', updateTimePreview);
-            document.getElementById('secondsInput').addEventListener('input', updateTimePreview);
-            updateTimePreview();
-            
-            // Update file input label when file is selected
-            document.getElementById('fontFileInput').addEventListener('change', function(e) {
-                const label = e.target.nextElementSibling;
-                if (e.target.files.length > 0) {
-                    label.textContent = e.target.files[0].name;
-                } else {
-                    label.textContent = 'Choose Font File';
-                }
-            });
-        });
-
-        document.getElementById('livePreviewToggle').addEventListener('change', () => {
-            updateTimePreview();
-        });
-    </script>
+     
 </body>
 </html>

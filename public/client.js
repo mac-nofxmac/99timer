@@ -1,9 +1,8 @@
 const socket = io();
 
-const timerEl = document.getElementById('timer');
-const progressBarTop = document.getElementById('progressBarTop');
-const progressBarBottom = document.getElementById('progressBarBottom');
+let currentTimerState = null; // Stores the latest timer state received from the server
 
+// Common utility function for time formatting
 function formatTime(seconds) {
     seconds = Math.abs(seconds);
     const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -11,14 +10,19 @@ function formatTime(seconds) {
     return `${mins}:${secs}`;
 }
 
-socket.on('update', (state) => { // Updates the timer display based on the received state. Depends on: formatTime(), DOM elements ('timer', 'progressBarTop', 'progressBarBottom').
-    // Update timer display
+// *** SINGLE CONSOLIDATED socket.on('update') LISTENER ***
+socket.on('update', (state) => {
+    // --- PART 1: Update Timer Display (primarily for display.html) ---
+    const timerEl = document.getElementById('timer');
+    const progressBarTop = document.getElementById('progressBarTop');
+    const progressBarBottom = document.getElementById('progressBarBottom');
+
     if (timerEl) {
         timerEl.textContent = formatTime(state.time);
-        timerEl.style.fontSize = state.fontSize;
+        timerEl.style.fontSize = state.fontSize; // Apply main fontSize for the display page (e.g., '10vw')
         timerEl.style.fontFamily = state.customFont ? state.customFont.name : state.fontFamily;
 
-        // Flashing behavior
+        // Flashing behavior for main timer
         if (state.time <= 0 && state.time >= -3600) {
             timerEl.classList.add('flashing');
         } else {
@@ -28,7 +32,7 @@ socket.on('update', (state) => { // Updates the timer display based on the recei
                 : state.fontColor;
         }
 
-        // Inject custom font if needed
+        // Inject custom font if needed for main timer
         if (state.customFont) {
             const styleId = 'dynamic-font';
             let styleTag = document.getElementById(styleId);
@@ -49,16 +53,16 @@ socket.on('update', (state) => { // Updates the timer display based on the recei
         }
     }
 
-    // Update progress bars
+    // Update progress bars (if elements exist)
     if (progressBarTop && progressBarBottom) {
-        const totalTime = state.originalDuration || 5999;
-        const percent = Math.max(0, state.time / totalTime);
+        const totalTime = state.originalDuration || 5999; // Fallback for originalDuration if not set
+        const percent = (totalTime > 0) ? Math.max(0, state.time / totalTime) : 0; // Prevent division by zero
 
         const barColor = state.time <= state.warningThreshold && state.time > 0
             ? state.warningColor
             : state.fontColor;
 
-        progressBarTop.style.transformOrigin = 'center';     //progressBarTop.style.transformOrigin = 'left';
+        progressBarTop.style.transformOrigin = 'center';
         progressBarTop.style.transform = `scaleX(${percent})`;
         progressBarTop.style.backgroundColor = barColor;
 
@@ -66,56 +70,63 @@ socket.on('update', (state) => { // Updates the timer display based on the recei
         progressBarBottom.style.transform = `scaleX(${percent})`;
         progressBarBottom.style.backgroundColor = barColor;
     }
-});
 
 
-socket.on('update', (state) => { // Updates the preview timer in the control panel. Depends on: DOM elements ('timePreview', 'livePreviewToggle'), updateTimePreview(), updatePreviewAppearance().
+    // --- PART 2: Update Control Panel elements (primarily for control.html) ---
     const previewEl = document.getElementById('timePreview');
     const toggleEl = document.getElementById('livePreviewToggle');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const addAdjustmentBtn = document.getElementById('addAdjustmentBtn');
+    const subtractAdjustmentBtn = document.getElementById('subtractAdjustmentBtn');
+    const liveAdjustMinutesInput = document.getElementById('liveAdjustMinutesInput');
+    const liveAdjustSecondsInput = document.getElementById('liveAdjustSecondsInput');
 
-    if (!previewEl || !toggleEl) return;
+    // Only proceed with control panel specific updates if essential preview elements exist
+    if (previewEl && toggleEl) {
+        currentTimerState = state; // Store the current state globally for control.html-specific functions
 
-    if (toggleEl.checked) {
-        // Live timer mode
-        const seconds = Math.abs(state.time);
-        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
-        previewEl.textContent = `${mins}:${secs}`;
-
-        // Style updates
-        if (state.time <= 0 && state.time >= -3600) { // Apply flashing red for times <= 0
-            previewEl.classList.add('flashing');
-        } else {
-            previewEl.classList.remove('flashing'); // Remove flashing if time > 0
-            if (state.time <= state.warningThreshold && state.time > 0) {
-                previewEl.style.color = state.warningColor;
-            } else {
-                previewEl.style.color = state.fontColor;
-            }
+        // Update Pause button text
+        if (pauseBtn) {
+            pauseBtn.textContent = state.paused ? 'Resume ??' : 'Pause';
         }
 
-        updatePreviewAppearance(state);
-        previewEl.style.fontFamily = state.customFont?.name || state.fontFamily;
-    } else {
-        // Static input preview mode
-        updateTimePreview();
-		//updatePreviewAppearance(state); // this does font sizing and color
+        // Logic to determine if LIVE ADJUSTMENT controls should be enabled
+        const enableAdjustmentControls = (state.running || state.paused) && state.time > 0;
+
+        // Apply disabled state to LIVE ADJUSTMENT elements ONLY if they are found
+        if (addAdjustmentBtn) addAdjustmentBtn.disabled = !enableAdjustmentControls;
+        if (subtractAdjustmentBtn) subtractAdjustmentBtn.disabled = !enableAdjustmentControls;
+        if (liveAdjustMinutesInput) liveAdjustMinutesInput.disabled = !enableAdjustmentControls;
+        if (liveAdjustSecondsInput) liveAdjustSecondsInput.disabled = !enableAdjustmentControls;
+
+
+        // Handle preview display based on toggle state
+        if (toggleEl.checked) {
+            // Live timer mode: uses state.time from the server
+            const seconds = Math.abs(state.time);
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+            previewEl.textContent = `${mins}:${secs}`;
+
+            // Style updates for live preview, using the corrected updatePreviewAppearance
+            updatePreviewAppearance(state);
+            previewEl.style.fontFamily = state.customFont?.name || state.fontFamily; // Ensure font family is applied here too
+        } else {
+            // Static input preview mode: uses local input field values
+            updateTimePreview();
+            // In static mode, ensure the preview appearance also reflects current settings
+            updatePreviewAppearance(state);
+        }
     }
 });
 
-socket.on('update', (state) => { // Updates the pause button text. Depends on: DOM element ('pauseBtn').
-    const pauseBtn = document.getElementById('pauseBtn');
-    if (pauseBtn) {
-        pauseBtn.textContent = state.paused ? 'Resume ??' : 'Pause';
-    }
-});
 
-
-function startTimer() { // Starts the timer with the specified duration. Depends on: DOM elements ('minutesInput', 'secondsInput'), updateTimePreview(), socket.emit('start').
+// All other functions from your original client.js file
+function startTimer() {
     let minutes = parseInt(document.getElementById('minutesInput').value) || 0;
     let seconds = parseInt(document.getElementById('secondsInput').value) || 0;
 
-    // Clamp seconds to 0�59
+    // Clamp seconds to 0-59
     if (seconds > 59) seconds = 59;
     if (seconds < 0) seconds = 0;
 
@@ -133,23 +144,17 @@ function startTimer() { // Starts the timer with the specified duration. Depends
     socket.emit('start', totalSeconds);
 }
 
-let isPaused = false;
-
-function togglePause() { // Toggles the pause state of the timer. Depends on: socket.emit('pauseToggle'), DOM element ('pauseBtn').
-    isPaused = !isPaused;
-    socket.emit('pauseToggle', isPaused);
-
-    // Optional: update button label
-    const btn = document.getElementById('pauseBtn');
-    btn.textContent = isPaused ? 'Resume' : 'Pause';
+function togglePause() {
+    if (currentTimerState) {
+        socket.emit('pauseToggle', !currentTimerState.paused);
+    }
 }
 
-
-function stopTimer() { // Stops the timer. Depends on: socket.emit('stop').
+function stopTimer() {
     socket.emit('stop');
 }
 
-function resetTimer() { // Resets the timer. Depends on: socket.emit('reset').
+function resetTimer() {
     socket.emit('reset');
 }
 
@@ -162,19 +167,22 @@ function applyFont() {
 
     socket.emit('setFont', { size, color, family, warningThreshold, warningColor });
 
+    // For immediate visual feedback on the control preview, even if not in live mode:
     const toggleEl = document.getElementById('livePreviewToggle');
     if (toggleEl && !toggleEl.checked) {
-        // Only update preview style manually if live preview is OFF
+        // Use a dummy state object for updatePreviewAppearance if currentTimerState isn't yet fully updated
         updatePreviewAppearance({
-            fontSize: size,
+            fontSize: size, // This will be used for scaling now
             fontColor: color,
-            fontFamily: family
+            fontFamily: family,
+            warningThreshold: warningThreshold,
+            warningColor: warningColor,
+            time: currentTimerState ? currentTimerState.time : 0 // Use current timer time for flashing logic
         });
     }
 }
 
-
-function uploadFont() { // Uploads a custom font file. Depends on: DOM element ('fontFileInput'), fetch API, socket.emit('setCustomFont').
+function uploadFont() {
     const fileInput = document.getElementById('fontFileInput');
     const file = fileInput.files[0];
     if (!file) {
@@ -210,77 +218,83 @@ function uploadFont() { // Uploads a custom font file. Depends on: DOM element (
                     }
                 `;
 
-                // 2. Apply to preview
+                // 2. Apply to preview directly (this ensures immediate feedback)
                 document.getElementById('timePreview').style.fontFamily = fontName;
 
                 // 3. Notify display page to use the font
                 socket.emit('setCustomFont', { name: fontName, url: fontUrl });
             }
+        })
+        .catch(error => {
+            console.error('Error uploading font:', error);
+            alert('Failed to upload font.');
         });
 }
 
-function resetFont() { // Resets the font to default settings. Depends on: DOM elements ('fontSizeInput', 'fontColorInput', 'fontFamilySelect'), socket.emit('resetFont').
-    const size = document.getElementById('fontSizeInput').value;
-    const color = document.getElementById('fontColorInput').value;
-    const family = document.getElementById('fontFamilySelect').value;
+function resetFont() {
+    // Reset font settings to default (assuming Arial, #FFFFFF, etc. are defaults)
+    document.getElementById('fontSizeInput').value = '10vw'; // Default value
+    document.getElementById('fontColorInput').value = '#FFFFFF'; // Default value
+    document.getElementById('fontFamilySelect').value = 'Arial, sans-serif'; // Default value
+    document.getElementById('warningThresholdInput').value = '30';
+    document.getElementById('warningColorInput').value = '#FFA500';
 
     // Emit regular font settings and null out custom font
-    socket.emit('resetFont', { size, color, family });
-	
-	// Reset preview font family
+    socket.emit('resetFont'); // Emit a specific 'resetFont' event if your server handles it
+
+    // Reset preview font family by removing the dynamic style tag
     const styleTag = document.getElementById('dynamic-font-preview');
     if (styleTag) styleTag.remove();
 
-    document.getElementById('timePreview').style.fontFamily = family;
+    // Revert preview font family to the default selected one
+    document.getElementById('timePreview').style.fontFamily = 'Arial, sans-serif'; // Default after reset
+
+    // Re-apply current settings to ensure preview updates visually
+    applyFont();
 }
 
-function updateTimePreview() { // Updates the time preview in the control panel based on input fields. Depends on: DOM elements ('minutesInput', 'secondsInput', 'timePreview').
+function updateTimePreview() {
     let minutesInput = document.getElementById('minutesInput');
     let secondsInput = document.getElementById('secondsInput');
     let minutes = parseInt(minutesInput.value) || 0;
     let seconds = parseInt(secondsInput.value) || 0;
 
-    // Clamp seconds to 0�59
+    // Clamp seconds to 0-59
     if (seconds > 59) seconds = 59;
     if (seconds < 0) seconds = 0;
 
-    // Total time in seconds
     let totalSeconds = (minutes * 60) + seconds;
+    if (totalSeconds > 5999) totalSeconds = 5999; // Max 99:59
 
-    // Clamp total to 99:59 (5999 seconds)
-    if (totalSeconds > 5999) totalSeconds = 5999;
-
-    // Recalculate minutes/seconds from clamped total
     minutes = Math.floor(totalSeconds / 60);
     seconds = totalSeconds % 60;
 
-    // Update input fields with clamped values
     minutesInput.value = minutes;
     secondsInput.value = seconds;
 
-    // Update preview display
     const mm = minutes.toString().padStart(2, '0');
     const ss = seconds.toString().padStart(2, '0');
     document.getElementById('timePreview').textContent = `${mm}:${ss}`;
 }
 
-function updatePreviewAppearance(state) { // Updates the appearance of the time preview. Depends on: DOM element ('timePreview').
+// *** IMPORTANT CHANGE HERE: Re-introduced custom scaling for CONTROL PANEL PREVIEW ***
+function updatePreviewAppearance(state) {
     const previewEl = document.getElementById('timePreview');
     if (!previewEl) return;
 
-    // Scale font size proportionally (e.g. reduce by 70%)
-    const originalSize = parseFloat(state.fontSize);
-    const scaledSize = Math.floor(parseFloat(state.fontSize)) * 3.2; //<-- this changes the preview font size ratio
-    previewEl.style.fontSize = `${scaledSize}px`;
+    // Use the user's custom scaling for the preview font size
+    // parseFloat('10vw') will result in 10. We then multiply by 3.2 and add 'px' unit.
+    const baseFontSizeValue = parseFloat(state.fontSize) || 10; // Extract numeric value, default to 10
+    const scaledPreviewFontSize = baseFontSizeValue * 3.2; // Apply the custom scaling factor
+    previewEl.style.fontSize = `${scaledPreviewFontSize}px`; // Apply with 'px' unit
 
-    previewEl.style.fontSize = scaledSize;
     previewEl.style.color = state.fontColor;
     previewEl.style.fontFamily = state.customFont?.name || state.fontFamily;
 
     // Apply flashing or warning color
-    if (state.time <= 0 && state.time >= -3600) { // Time is at or below zero
-        previewEl.classList.add('flashing'); // Add flashing class
-        previewEl.style.color = '#ff0000'; // Explicitly set color to red (or desired flashing color)
+    if (state.time <= 0 && state.time >= -3600) {
+        previewEl.classList.add('flashing');
+        previewEl.style.color = '#ff0000'; // Explicitly red for flashing
     } else if (state.warningThreshold && state.time <= state.warningThreshold && state.time > 0) {
         previewEl.style.color = state.warningColor;
     } else {
@@ -290,45 +304,89 @@ function updatePreviewAppearance(state) { // Updates the appearance of the time 
 }
 
 
-function setPreset(mins, secs) { // Sets preset time values in the input fields. Depends on: DOM elements ('minutesInput', 'secondsInput'), updateTimePreview().
+function setPreset(mins, secs) {
     document.getElementById('minutesInput').value = mins;
     document.getElementById('secondsInput').value = secs;
     updateTimePreview();
 }
 
-
 function applyTotalLiveAdjustment(isSubtract) {
-    const minutesInput = document.getElementById('liveAdjustMinutesInput');
-    const secondsInput = document.getElementById('liveAdjustSecondsInput');
+    if (!currentTimerState || (!currentTimerState.running && !currentTimerState.paused) || currentTimerState.time <= 0) {
+        console.log("Adjustment prevented (client-side): Timer is not active or time is zero/negative.");
+        return;
+    }
 
-    let minutes = parseInt(minutesInput.value) || 0;
-    let seconds = parseInt(secondsInput.value) || 0;
+    const liveAdjustMinutesInput = document.getElementById('liveAdjustMinutesInput');
+    const liveAdjustSecondsInput = document.getElementById('liveAdjustSecondsInput');
 
-    // Ensure values are non-negative as per HTML min="0" but also handle NaN from parseInt
+    let minutes = parseInt(liveAdjustMinutesInput.value) || 0;
+    let seconds = parseInt(liveAdjustSecondsInput.value) || 0;
+
     if (isNaN(minutes) || minutes < 0) minutes = 0;
     if (isNaN(seconds) || seconds < 0) seconds = 0;
 
-    // Calculate total adjustment in seconds
     let totalAdjustmentInSeconds = (minutes * 60) + seconds;
 
-    // Apply subtraction if the button clicked was 'Subtract Adjustment'
     if (isSubtract) {
         totalAdjustmentInSeconds = -totalAdjustmentInSeconds;
     }
 
-    // Emit the adjustment to the server. The server expects 'unit' and 'value'.
-    // We send 'seconds' as the unit, and the total calculated adjustment as the value.
     socket.emit('adjustTime', { unit: 'seconds', value: totalAdjustmentInSeconds });
 
-    // Reset the input fields after applying the adjustment
-    minutesInput.value = 0;
-    secondsInput.value = 0;
+    liveAdjustMinutesInput.value = 0;
+    liveAdjustSecondsInput.value = 0;
 }
 
 
-// Attach event listeners after DOM loads
+// Attach ALL event listeners after DOM loads
 window.addEventListener('DOMContentLoaded', () => {
+    // Main timer setup input listeners
     document.getElementById('minutesInput').addEventListener('input', updateTimePreview);
     document.getElementById('secondsInput').addEventListener('input', updateTimePreview);
-    updateTimePreview(); // Initialize preview on load
-}); 
+    updateTimePreview(); // Initialize main preview on load
+
+    // Live preview toggle listener
+    const livePreviewToggle = document.getElementById('livePreviewToggle');
+    if (livePreviewToggle) {
+        livePreviewToggle.addEventListener('change', () => {
+            if (!livePreviewToggle.checked) {
+                updateTimePreview();
+            }
+        });
+    }
+
+    // Update file input label when file is selected
+    const fontFileInput = document.getElementById('fontFileInput');
+    if (fontFileInput) {
+        fontFileInput.addEventListener('change', function(e) {
+            const label = e.target.nextElementSibling;
+            if (e.target.files.length > 0) {
+                label.textContent = e.target.files[0].name;
+            } else {
+                label.textContent = 'Choose Font File';
+            }
+        });
+    }
+
+    // Explicitly attach event listeners for buttons if they are not already using onclick in HTML
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) startBtn.addEventListener('click', startTimer);
+
+    const pauseBtn = document.getElementById('pauseBtn');
+    if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+
+    const stopBtn = document.getElementById('stopBtn');
+    if (stopBtn) stopBtn.addEventListener('click', stopTimer);
+
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) resetBtn.addEventListener('click', resetTimer);
+
+    const applyFontBtn = document.getElementById('applyFontBtn');
+    if (applyFontBtn) applyFontBtn.addEventListener('click', applyFont);
+
+    const uploadFontBtn = document.getElementById('uploadFontBtn');
+    if (uploadFontBtn) uploadFontBtn.addEventListener('click', uploadFont);
+
+    const resetFontBtn = document.getElementById('resetFontBtn');
+    if (resetFontBtn) resetFontBtn.addEventListener('click', resetFont);
+});
