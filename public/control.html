@@ -253,8 +253,24 @@
             gap: 20px;
         }
 
+        /* Ensure the bottom section also uses two-column layout for consistency */
+        .bottom-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Helper text styling to match design system */
+        .helper-text {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.4;
+        }
+
         @media (max-width: 768px) {
-            .two-column {
+            .two-column,
+            .bottom-controls {
                 grid-template-columns: 1fr;
             }
             
@@ -398,18 +414,41 @@
             </div>
         </div>
 
-        <!-- Timer Controls Section -->
-        <div class="card">
-            <h3>▶ Timer Controls</h3>
-            <div class="control-buttons">
-                <button class="btn btn-success" onclick="startTimer()">► Start</button>
-                <button class="btn btn-warning" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
-                <button class="btn btn-danger" onclick="stopTimer()">■ Stop</button>
-                <button class="btn btn-secondary" onclick="resetTimer()">↻ Reset</button>
+        <!-- Timer Controls Section - Now with consistent two-column layout -->
+        <div class="bottom-controls">
+            <div class="card">
+                <h3>▶ Timer Controls</h3>
+                <div class="control-buttons">
+                    <button class="btn btn-success" onclick="startTimer()">► Start</button>
+                    <button class="btn btn-warning" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+                    <button class="btn btn-danger" onclick="stopTimer()">■ Stop</button>
+                    <button class="btn btn-secondary" onclick="resetTimer()">↻ Reset</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>↔ Live Adjustments</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="liveAdjustMinutesInput">Minutes</label>
+                        <input type="number" id="liveAdjustMinutesInput" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="liveAdjustSecondsInput">Seconds</label>
+                        <input type="number" id="liveAdjustSecondsInput" value="0" min="0">
+                    </div>
+                </div>
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="applyTotalLiveAdjustment(false)">Add Adjustment</button>
+                    <button class="btn btn-danger" onclick="applyTotalLiveAdjustment(true)">Subtract Adjustment</button>
+                </div>
+                <p class="helper-text">
+                    Enter minutes and seconds above, then click 'Add' or 'Subtract'.
+                </p>
             </div>
         </div>
     </div>
-
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
     

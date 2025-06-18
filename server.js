@@ -101,6 +101,24 @@ io.on('connection', (socket) => {
     }, 1000);
 });
 
+socket.on('adjustTime', ({ unit, value }) => { // Adjusts the live timer by a specified amount. Depends on: timerState, socket.io.
+    if (unit === 'seconds') {
+        timerState.time += value;
+
+        // Ensure timer doesn't go below a reasonable negative threshold (e.g., -99:59 or -5999 seconds)
+        if (timerState.time < -5999) { // Prevent excessively large negative times
+            timerState.time = -5999;
+        }
+
+        // If the timer is not running, and an adjustment is made,
+        // also adjust originalDuration to keep progress bar consistent for future starts.
+        if (!timerState.running) {
+            timerState.originalDuration = (timerState.originalDuration || 0) + value;
+            if (timerState.originalDuration < 0) timerState.originalDuration = 0; // Ensure it doesn't go negative
+        }
+    }
+    io.emit('update', timerState); // Broadcast the updated timer state to all clients
+});
 
     socket.on('setCustomFont', ({ name, url }) => { // Sets a custom font for the timer display. Depends on: socket.io, timerState.
         timerState.customFont = { name, url };

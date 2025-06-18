@@ -297,6 +297,33 @@ function setPreset(mins, secs) { // Sets preset time values in the input fields.
 }
 
 
+function applyTotalLiveAdjustment(isSubtract) {
+    const minutesInput = document.getElementById('liveAdjustMinutesInput');
+    const secondsInput = document.getElementById('liveAdjustSecondsInput');
+
+    let minutes = parseInt(minutesInput.value) || 0;
+    let seconds = parseInt(secondsInput.value) || 0;
+
+    // Ensure values are non-negative as per HTML min="0" but also handle NaN from parseInt
+    if (isNaN(minutes) || minutes < 0) minutes = 0;
+    if (isNaN(seconds) || seconds < 0) seconds = 0;
+
+    // Calculate total adjustment in seconds
+    let totalAdjustmentInSeconds = (minutes * 60) + seconds;
+
+    // Apply subtraction if the button clicked was 'Subtract Adjustment'
+    if (isSubtract) {
+        totalAdjustmentInSeconds = -totalAdjustmentInSeconds;
+    }
+
+    // Emit the adjustment to the server. The server expects 'unit' and 'value'.
+    // We send 'seconds' as the unit, and the total calculated adjustment as the value.
+    socket.emit('adjustTime', { unit: 'seconds', value: totalAdjustmentInSeconds });
+
+    // Reset the input fields after applying the adjustment
+    minutesInput.value = 0;
+    secondsInput.value = 0;
+}
 
 
 // Attach event listeners after DOM loads
