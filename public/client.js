@@ -89,6 +89,17 @@ socket.on('update', (state) => {
         if (pauseBtn) {
             pauseBtn.textContent = state.paused ? 'Resume ??' : 'Pause';
         }
+        if (pauseBtn) {
+            pauseBtn.textContent = state.paused ? 'Resume ??' : 'Pause';
+        
+            // Add flashing effect when paused
+            if (state.paused) {
+                pauseBtn.classList.add('pause-flash');
+            } else {
+                pauseBtn.classList.remove('pause-flash');
+            }
+        }
+        
 
         // Logic to determine if LIVE ADJUSTMENT controls should be enabled
         const enableAdjustmentControls = (state.running || state.paused) && state.time > 0;
@@ -285,7 +296,10 @@ function updatePreviewAppearance(state) {
     // Use the user's custom scaling for the preview font size
     // parseFloat('10vw') will result in 10. We then multiply by 3.2 and add 'px' unit.
     const baseFontSizeValue = parseFloat(state.fontSize) || 10; // Extract numeric value, default to 10
-    const scaledPreviewFontSize = baseFontSizeValue * 3.2; // Apply the custom scaling factor
+    const scaleInput = document.getElementById('previewScaleInput');
+    const scaleFactor = scaleInput ? parseFloat(scaleInput.value) || 1 : 3.2;
+    const scaledPreviewFontSize = baseFontSizeValue * scaleFactor;
+
     previewEl.style.fontSize = `${scaledPreviewFontSize}px`; // Apply with 'px' unit
 
     previewEl.style.color = state.fontColor;
