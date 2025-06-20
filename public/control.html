@@ -63,11 +63,17 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            min-width: 120px;
+            min-width: 120px; /* Base min-width for form groups */
         }
 
         .form-group.full-width {
             flex: 1;
+        }
+
+        /* Added a new class for smaller inputs */
+        .form-group.narrow-input {
+            min-width: unset; /* Override min-width for this specific case */
+            width: 120px; /* Set a fixed width or a smaller max-width */
         }
 
         label {
@@ -317,17 +323,28 @@
         }
 
         .pause-flash {
-    animation: pulse 1.5s ease-in-out infinite;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
         @keyframes pulse {
-        0%, 100% {
-        opacity: 1;
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
         }
-             50% {
-        opacity: 0.6;
+
+        /* Specific style for the preview scaling factor input group */
+        .form-row.preview-adjustments {
+            align-items: center; /* Align items to the center of the row */
+            margin-top: 0px; /* Adjust margin as needed to bring it closer */
         }
+        
+        .form-row.preview-adjustments .form-group {
+            margin-top: 16px; /* Push the input down to visually align with the center of the preview */
         }
+
 
     </style>
 </head>
@@ -335,47 +352,7 @@
     <div class="container">
         <h1>Timer Control Panel</h1>
         
-        <!-- Timer Settings Section -->
-        <div class="card">
-            <h3>⏱ Timer Settings</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="minutesInput">Minutes</label>
-                    <input type="number" id="minutesInput" value="1" min="0" max="99">
-                </div>
-                <div class="form-group">
-                    <label for="secondsInput">Seconds</label>
-                    <input type="number" id="secondsInput" value="0" min="0" max="59">
-                </div>
-            </div>
-            
-            <div class="preset-buttons">
-                <button type="button" class="btn preset-btn" onclick="setPreset(1, 0)">01:00</button>
-                <button type="button" class="btn preset-btn" onclick="setPreset(5, 0)">05:00</button>
-                <button type="button" class="btn preset-btn" onclick="setPreset(10, 0)">10:00</button>
-                <button type="button" class="btn preset-btn" onclick="setPreset(20, 0)">20:00</button>
-                <button type="button" class="btn preset-btn" onclick="setPreset(30, 0)">30:00</button>
-            </div>
-
-            <div class="checkbox-group">
-                <input type="checkbox" id="livePreviewToggle" />
-                <label for="livePreviewToggle">▣ Show Live Preview</label>
-            </div>
-
-            <div class="form-row" style="align-items: flex-start;">
-                <div class="preview-container" id="previewContainer">
-                    <div class="preview-time" id="timePreview">00:00</div>
-                </div>
-                <div class="form-group">
-                    <label for="previewScaleInput">Preview Scaling Factor</label>
-                    <input type="number" id="previewScaleInput" value="3.2" step="0.01" min="0.1" />
-                </div>
-            </div>
-            
-        </div>
-
         <div class="two-column">
-            <!-- Font Styling Section -->
             <div class="card">
                 <h3>⚡ Font Styling</h3>
                 
@@ -416,7 +393,6 @@
                 <button class="btn btn-primary" onclick="applyFont()">Apply Font Settings</button>
             </div>
 
-            <!-- Custom Font Section -->
             <div class="card">
                 <h3>※ Custom Font Upload</h3>
                 
@@ -435,7 +411,44 @@
             </div>
         </div>
 
-        <!-- Timer Controls Section - Now with consistent two-column layout -->
+        <div class="card">
+            <h3>⏱ Timer Settings</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="minutesInput">Minutes</label>
+                    <input type="number" id="minutesInput" value="1" min="0" max="99">
+                </div>
+                <div class="form-group">
+                    <label for="secondsInput">Seconds</label>
+                    <input type="number" id="secondsInput" value="0" min="0" max="59">
+                </div>
+            </div>
+            
+            <div class="preset-buttons">
+                <button type="button" class="btn preset-btn" onclick="setPreset(1, 0)">01:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(5, 0)">05:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(10, 0)">10:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(20, 0)">20:00</button>
+                <button type="button" class="btn preset-btn" onclick="setPreset(30, 0)">30:00</button>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="livePreviewToggle" />
+                <label for="livePreviewToggle">▣ Show Live Preview</label>
+            </div>
+
+            <div class="form-row preview-adjustments">
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-time" id="timePreview">00:00</div>
+                </div>
+                <div class="form-group narrow-input">
+                    <label for="previewScaleInput">Preview Scaling Factor</label>
+                    <input type="number" id="previewScaleInput" value="3.2" step="0.01" min="0.1" />
+                </div>
+            </div>
+            
+        </div>
+
         <div class="bottom-controls">
             <div class="card">
                 <h3>▶ Timer Controls</h3>

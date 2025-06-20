@@ -108,6 +108,7 @@ socket.on('update', (state) => {
         if (addAdjustmentBtn) addAdjustmentBtn.disabled = !enableAdjustmentControls;
         if (subtractAdjustmentBtn) subtractAdjustmentBtn.disabled = !enableAdjustmentControls;
         if (liveAdjustMinutesInput) liveAdjustMinutesInput.disabled = !enableAdjustmentControls;
+        if (liveAdjustMinutesInput) liveAdjustMinutesInput.disabled = !enableAdjustmentControls;
         if (liveAdjustSecondsInput) liveAdjustSecondsInput.disabled = !enableAdjustmentControls;
 
 
@@ -359,8 +360,16 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('secondsInput').addEventListener('input', updateTimePreview);
     updateTimePreview(); // Initialize main preview on load
 
-    // Live preview toggle listener
+    // Auto-activate live preview and apply font settings on load
     const livePreviewToggle = document.getElementById('livePreviewToggle');
+    if (livePreviewToggle) {
+        livePreviewToggle.checked = true; // Set checkbox to checked
+        // The socket.on('update') listener will handle updating the preview
+        // when livePreviewToggle.checked is true.
+    }
+    applyFont(); // Apply current font settings
+
+    // Live preview toggle listener
     if (livePreviewToggle) {
         livePreviewToggle.addEventListener('change', () => {
             if (!livePreviewToggle.checked) {
