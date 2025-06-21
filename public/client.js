@@ -194,20 +194,27 @@ function applyFont() {
     const size = document.getElementById('fontSizeInput').value;
     const color = document.getElementById('fontColorInput').value;
     const family = document.getElementById('fontFamilySelect').value;
-    const warningThreshold = parseInt(document.getElementById('warningThresholdInput').value);
+
+    // Retrieve warning threshold in minutes and seconds
+    const warningThresholdMinutes = parseInt(document.getElementById('warningThresholdMinutes').value) || 0;
+    const warningThresholdSeconds = parseInt(document.getElementById('warningThresholdSeconds').value) || 0;
     const warningColor = document.getElementById('warningColorInput').value;
 
-    socket.emit('setFont', { size, color, family, warningThreshold, warningColor });
+    // Send minutes and seconds separately to the server
+    socket.emit('setFont', {
+        size, color, family, warningThresholdMinutes, warningThresholdSeconds, warningColor
+    });
 
     // For immediate visual feedback on the control preview, even if not in live mode:
     const toggleEl = document.getElementById('livePreviewToggle');
+    const totalWarningSeconds = (warningThresholdMinutes * 60) + warningThresholdSeconds; // Calculate total seconds for preview
     if (toggleEl && !toggleEl.checked) {
         // Use a dummy state object for updatePreviewAppearance if currentTimerState isn't yet fully updated
         updatePreviewAppearance({
             fontSize: size, // This will be used for scaling now
             fontColor: color,
             fontFamily: family,
-            warningThreshold: warningThreshold,
+            warningThreshold: totalWarningSeconds, // Use total seconds for the preview update
             warningColor: warningColor,
             time: currentTimerState ? currentTimerState.time : 0 // Use current timer time for flashing logic
         });

@@ -38,16 +38,25 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="warningThresholdInput">Warning Threshold (seconds)</label>
-                        <input type="number" id="warningThresholdInput" value="30">
+                    <div class="form-group warning-label-group"> <label>Warning Threshold</label>
                     </div>
+                
+                    <div class="form-group-horizontal">
+                        <div class="form-group inline-group">
+                            <label for="warningThresholdMinutes">Minutes</label>
+                            <input type="number" id="warningThresholdMinutes" value="0" min="0">
+                        </div>
+                        <div class="form-group inline-group">
+                            <label for="warningThresholdSeconds">Seconds</label>
+                            <input type="number" id="warningThresholdSeconds" value="30" min="0" max="59">
+                        </div>
+                    </div>
+                
                     <div class="form-group">
                         <label for="warningColorInput">Warning Color</label>
                         <input type="color" id="warningColorInput" value="#FFA500">
                     </div>
                 </div>
-
                 <button class="btn btn-primary" onclick="applyFont()">Apply Font Settings</button>
             </div>
 
@@ -72,12 +81,10 @@
         <div class="card">
             <h3>⏱ Timer Settings</h3>
             <div class="form-row">
-                <div class="form-group">
-                    <label for="minutesInput">Minutes</label>
+                <div class="form-group fixed-width-input"> <label for="minutesInput">Minutes</label>
                     <input type="number" id="minutesInput" value="1" min="0" max="99">
                 </div>
-                <div class="form-group">
-                    <label for="secondsInput">Seconds</label>
+                <div class="form-group fixed-width-input"> <label for="secondsInput">Seconds</label>
                     <input type="number" id="secondsInput" value="0" min="0" max="59">
                 </div>
             </div>

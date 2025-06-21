@@ -1,82 +1,24 @@
-.flashing {
-  animation: flash 1s infinite;
-}
-
-@keyframes flash {
-  0% { color: #ff0000; }
-  50% { color: #990000; }
-  100% { color: #ff0000; }
-}
-
-#previewContainer {
-  width: 320px;       /* Fixed size (16:9 ratio) */
-  height: 180px;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  position: relative;
-}
-
-#timePreview {
-  color: white;
-  font-size: 48px;     /* Use fixed size */
-  font-weight: bold;
-  text-align: center;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  white-space: nowrap;
-  transform: scale(1);
-  -webkit-text-size-adjust: none;
-  text-size-adjust: none;
-}
-
-.progress-bar-container {
-    width: 100%;
-    height: 12px;
-    background-color: transparent;
-    overflow: hidden;
-    position: absolute;
-    left: 0;
-}
-
-#progressContainerTop {
-    top: 0;
-}
-
-#progressContainerBottom {
-    bottom: 0;
-}
-
-.progress-bar {
-    height: 100%;
-    background-color: currentColor; /* inherits from font color */
-    transform-origin: left center;
-    transition: transform 0.3s ease-out;
-}
-
-* {
+/*
+ * Base Styles
+ * Resets, body, container, and common typography.
+ */
+ * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  box-sizing: border-box; /* Ensures consistent box model across elements */
 }
 
 body {
   font-family: 'Open Sans', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient background for visual appeal */
+  min-height: 100vh; /* Full viewport height */
   padding: 20px;
   color: #333;
 }
 
 .container {
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: 1000px; /* Limits content width for readability */
+  margin: 0 auto; /* Centers the container */
 }
 
 h1 {
@@ -85,17 +27,21 @@ h1 {
   font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 30px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Adds depth to heading */
 }
 
+/*
+ * Card & Layouts
+ * Styling for content cards and grid layouts.
+ */
 .card {
   background: white;
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1); /* Soft shadow for elevation */
+  backdrop-filter: blur(10px); /* Blurry background effect */
+  border: 1px solid rgba(255,255,255,0.2); /* Subtle border */
 }
 
 .card h3 {
@@ -103,55 +49,83 @@ h1 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 20px;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0; /* Separator line */
   padding-bottom: 8px;
 }
 
+.two-column,
+.bottom-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 20px; /* Space between grid items */
+}
+
+/*
+ * Form Elements
+ * General styling for labels, inputs, and form groups.
+ */
 .form-row {
   display: flex;
   gap: 16px;
   margin-bottom: 16px;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: flex-end; /* Aligns items by their bottom edge for consistent input alignment */
+  flex-wrap: wrap; /* Allows items to wrap to next line on smaller screens */
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 120px; /* Base min-width for form groups */
+  min-width: 120px; /* Base minimum width for form groups */
+  align-items: flex-start; /* Aligns children to their start (left) */
+  flex-grow: 1; /* Allow form groups to grow and take space */
+  flex-shrink: 1; /* Allow form groups to shrink */
+  flex-basis: auto; /* Default flex-basis */
+}
+
+/* NEW RULE: Specific rule for the Warning Threshold label's form-group */
+.form-group.warning-label-group {
+    flex-basis: 100%; /* Forces this specific group to take full width */
+    min-width: unset; /* Override min-width so it can be 100% */
 }
 
 .form-group.full-width {
-  flex: 1;
+  flex: 1; /* Allows group to take available space */
 }
 
 /* Added a new class for smaller inputs */
 .form-group.narrow-input {
   min-width: unset; /* Override min-width for this specific case */
   width: 120px; /* Set a fixed width or a smaller max-width */
+  flex-grow: 0; /* Don't allow to grow if fixed width */
 }
 
 label {
   font-weight: 500;
   color: #4a5568;
   font-size: 0.9rem;
+  line-height: 1.2; /* Explicit line-height for consistent text rendering */
+  margin-bottom: 0; /* Ensures no extra margin pushes label away from input */
+  padding-bottom: 0;
 }
 
-input[type="number"], 
-input[type="text"], 
-input[type="file"], 
+input[type="number"],
+input[type="text"],
+input[type="file"],
 select {
   padding: 10px 12px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease; /* Smooth transition for focus/hover states */
   background: white;
+  height: 40px; /* Explicit height for consistent vertical sizing */
+  box-sizing: border-box; /* Includes padding and border in the width */
+  width: 100%; /* Make inputs fill their form-group */
 }
 
-input[type="number"]:focus, 
-input[type="text"]:focus, 
+input[type="number"]:focus,
+input[type="text"]:focus,
 select:focus {
   outline: none;
   border-color: #667eea;
@@ -160,7 +134,7 @@ select:focus {
 
 input[type="color"] {
   width: 50px;
-  height: 40px;
+  height: 40px; /* Keep this height consistent with other inputs */
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   cursor: pointer;
@@ -279,24 +253,131 @@ input[type="color"]:hover {
   cursor: pointer;
 }
 
-.preview-container {
-  background: #000;
-  border-radius: 8px;
-  width: 320px;
+/*
+ * Specific Adjustments for Warning Threshold Inputs (Minutes, Seconds)
+ * This section ensures consistent alignment and sizing for minutes/seconds inputs.
+ */
+.form-group-horizontal {
+  display: flex;
+  align-items: flex-end; /* Aligns the minute/second input groups by their bottom edge */
+  gap: 16px;
+  flex-wrap: wrap;
+  /* flex: 1; Removed flex:1 here as it could make this group consume too much space if others are also flexible. */
+}
+
+.form-group.inline-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: unset; /* Ensure no inherited min-width */
+  width: 80px; /* Fixed width for consistent minute/second input sizing */
+  align-items: flex-start; /* Aligns label and input to their start (left/top) within the column */
+  margin-bottom: 0;
+  padding-bottom: 0;
+  flex-grow: 0; /* Prevent these from growing */
+  flex-shrink: 0; /* Prevent these from shrinking below 80px */
+}
+
+.form-group.inline-group label {
+  margin-bottom: 0; /* Ensure no extra margin for labels within these specific groups */
+}
+
+.form-group.inline-group input[type="number"] {
+    width: 100%; /* Makes input fill its parent's width */
+    box-sizing: border-box; /* Includes padding/border in width calculation */
+    text-align: center; /* Centers the number inside the input */
+}
+
+/* Add this new rule for fixed-width input groups */
+.form-group.fixed-width-input {
+  flex-grow: 0; /* Prevent from growing */
+  flex-shrink: 0; /* Prevent from shrinking */
+  width: 100px; /* Set a fixed width */
+  min-width: unset; /* Override any inherited min-width */
+}
+
+/* Ensure the input inside fills its new fixed-width parent */
+.form-group.fixed-width-input input[type="number"] {
+    width: 100%;
+}
+/*
+ * Live Preview & Timer Display (Adjusted for consistency)
+ */
+#previewContainer {
+  width: 320px; /* Fixed size (16:9 ratio) */
   height: 180px;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px; /* Added for consistency with other elements */
+  border: 2px solid #e2e8f0; /* Added for consistency */
+  margin: 16px 0; /* Adjusted from previous rules */
+}
+
+#timePreview {
+  color: white;
+  font-size: 48px; /* Use fixed size */
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 16px 0;
-  border: 2px solid #e2e8f0;
+  line-height: 1;
+  white-space: nowrap;
+  transform: scale(1);
+  -webkit-text-size-adjust: none; /* Prevents text scaling on mobile browsers */
+  text-size-adjust: none;
+  font-family: inherit; /* Ensures it inherits from overall font settings */
 }
 
-.preview-time {
-  color: white;
-  font-size: 48px;
-  font-weight: bold;
-  text-align: center;
-  font-family: inherit;
+/* Progress Bar Styling - Using IDs as in HTML */
+.progress-bar-container {
+    width: 100%;
+    height:12px;
+    background-color: transparent;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+}
+
+#progressContainerTop {
+    top: 0;
+}
+
+#progressContainerBottom {
+    bottom: 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: currentColor; /* Inherits color from parent's text color */
+    transform-origin: left center; /* Animation origin */
+    transition: transform 0.3s ease-out; /* Smooth transition for progress updates */
+}
+
+
+/* Specific style for the preview scaling factor input group */
+.form-row.preview-adjustments {
+  align-items: center; /* Align items to the center of the row */
+  margin-top: 0px; /* Adjust margin as needed to bring it closer */
+}
+
+.form-row.preview-adjustments .form-group {
+  margin-top: 16px; /* Push the input down to visually align with the center of the preview */
+}
+
+
+/* Helper Text & Animations (Original styling) */
+.helper-text {
+  margin-top: 10px;
+  font-size: 0.85em;
+  color: #666;
+  line-height: 1.4;
 }
 
 .flashing {
@@ -309,47 +390,57 @@ input[type="color"]:hover {
   100% { color: #ff0000; }
 }
 
-.two-column {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.pause-flash {
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Ensure the bottom section also uses two-column layout for consistency */
-.bottom-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
-/* Helper text styling to match design system */
-.helper-text {
-  margin-top: 10px;
-  font-size: 0.85em;
-  color: #666;
-  line-height: 1.4;
-}
 
+/*
+ * Responsive Design (Media Queries)
+ */
 @media (max-width: 768px) {
   .two-column,
   .bottom-controls {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr; /* Stack columns on smaller screens */
   }
-  
+
   .form-row {
-      flex-direction: column;
-      align-items: stretch;
+      flex-direction: column; /* Stack form elements vertically */
+      align-items: stretch; /* Stretch elements to fill width */
   }
-  
+
+  /* Specific adjustment for horizontal group on small screens */
+  .form-group-horizontal {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* Warning Threshold label's group */
+  /* This rule is now effectively replaced by .form-group.warning-label-group
+     which already has flex-basis: 100% for all sizes, so no special handling needed here. */
+
+  .form-group.inline-group {
+      width: auto; /* Revert to auto width for better stacking */
+      text-align: left; /* Revert text alignment */
+      align-items: flex-start; /* Revert alignment for stacking */
+  }
+
   .control-buttons {
-      justify-content: center;
+      justify-content: center; /* Center buttons when stacked */
   }
-  
+
   h1 {
       font-size: 2rem;
   }
 }
 
+/* File input styling (Original styling) */
 .file-input-wrapper {
   position: relative;
   display: inline-block;
@@ -377,27 +468,3 @@ input[type="color"]:hover {
 .file-input-label:hover {
   background: #cbd5e0;
 }
-
-.pause-flash {
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-      opacity: 1;
-  }
-  50% {
-      opacity: 0.6;
-  }
-}
-
-/* Specific style for the preview scaling factor input group */
-.form-row.preview-adjustments {
-  align-items: center; /* Align items to the center of the row */
-  margin-top: 0px; /* Adjust margin as needed to bring it closer */
-}
-
-.form-row.preview-adjustments .form-group {
-  margin-top: 16px; /* Push the input down to visually align with the center of the preview */
-}
-

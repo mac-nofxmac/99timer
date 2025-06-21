@@ -137,13 +137,14 @@ socket.on('adjustTime', ({ unit, value }) => { // Adjusts the live timer by a sp
     });
 
 
-    socket.on('setFont', ({ size, color, family, warningThreshold, warningColor }) => { // Sets font attributes for the timer display. Depends on: socket.io, timerState.
+    socket.on('setFont', ({ size, color, family, warningThresholdMinutes, warningThresholdSeconds, warningColor }) => { // Sets font attributes for the timer display. Depends on: socket.io, timerState.
         if (size) timerState.fontSize = size;
     if (color) timerState.fontColor = color;
     if (family) timerState.fontFamily = family;
-    if (warningThreshold !== undefined) timerState.warningThreshold = warningThreshold;
+    // Combine minutes and seconds into total seconds for warning threshold
+    timerState.warningThreshold = (warningThresholdMinutes * 60) + warningThresholdSeconds;
     if (warningColor) timerState.warningColor = warningColor;
-    io.emit('update', timerState);
+        io.emit('update', timerState);
 });
 
 
