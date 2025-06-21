@@ -10,6 +10,13 @@ function formatTime(seconds) {
     return `${mins}:${secs}`;
 }
 
+// Function to format time for EST display (HH:MM)
+function formatEstimatedTime(date) {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
 // *** SINGLE CONSOLIDATED socket.on('update') LISTENER ***
 socket.on('update', (state) => {
     // --- PART 1: Update Timer Display (primarily for display.html) ---
@@ -80,6 +87,7 @@ socket.on('update', (state) => {
     const subtractAdjustmentBtn = document.getElementById('subtractAdjustmentBtn');
     const liveAdjustMinutesInput = document.getElementById('liveAdjustMinutesInput');
     const liveAdjustSecondsInput = document.getElementById('liveAdjustSecondsInput');
+    const estimatedTimeDisplay = document.getElementById('estimatedTimeDisplay'); // Get the new element
 
     // Only proceed with control panel specific updates if essential preview elements exist
     if (previewEl && toggleEl) {
@@ -108,7 +116,6 @@ socket.on('update', (state) => {
         if (addAdjustmentBtn) addAdjustmentBtn.disabled = !enableAdjustmentControls;
         if (subtractAdjustmentBtn) subtractAdjustmentBtn.disabled = !enableAdjustmentControls;
         if (liveAdjustMinutesInput) liveAdjustMinutesInput.disabled = !enableAdjustmentControls;
-        if (liveAdjustMinutesInput) liveAdjustMinutesInput.disabled = !enableAdjustmentControls;
         if (liveAdjustSecondsInput) liveAdjustSecondsInput.disabled = !enableAdjustmentControls;
 
 
@@ -128,6 +135,19 @@ socket.on('update', (state) => {
             updateTimePreview();
             // In static mode, ensure the preview appearance also reflects current settings
             updatePreviewAppearance(state);
+        }
+
+        // Update estimated time display
+        if (estimatedTimeDisplay) {
+            if (state.time > 0 && state.running) {
+                const now = new Date();
+                const estimatedEndTime = new Date(now.getTime() + state.time * 1000);
+                estimatedTimeDisplay.textContent = `EST: ${formatEstimatedTime(estimatedEndTime)}`;
+            } else if (state.time <= 0 && (state.running || state.paused)) {
+                estimatedTimeDisplay.textContent = 'Overtime';
+            } else {
+                estimatedTimeDisplay.textContent = ''; // Clear if timer is stopped/reset
+            }
         }
     }
 });
@@ -245,21 +265,33 @@ function uploadFont() {
 
 function resetFont() {
     // Reset font settings to default (assuming Arial, #FFFFFF, etc. are defaults)
-    document.getElementById('fontSizeInput').value = '10vw'; // Default value
-    document.getElementById('fontColorInput').value = '#FFFFFF'; // Default value
-    document.getElementById('fontFamilySelect').value = 'Arial, sans-serif'; // Default value
-    document.getElementById('warningThresholdInput').value = '30';
-    document.getElementById('warningColorInput').value = '#FFA500';
+    const defaultSize = '30vw';
+    const defaultColor = '#FFFFFF';
+    const defaultFamily = 'Arial, sans-serif';
+    const defaultWarningThreshold = 30; // Changed to number
+    const defaultWarningColor = '#FFA500';
+
+    document.getElementById('fontSizeInput').value = defaultSize;
+    document.getElementById('fontColorInput').value = defaultColor;
+    document.getElementById('fontFamilySelect').value = defaultFamily;
+    document.getElementById('warningThresholdInput').value = defaultWarningThreshold;
+    document.getElementById('warningColorInput').value = defaultWarningColor;
 
     // Emit regular font settings and null out custom font
-    socket.emit('resetFont'); // Emit a specific 'resetFont' event if your server handles it
+    socket.emit('resetFont', { 
+        size: defaultSize, 
+        color: defaultColor, 
+        family: defaultFamily,
+        warningThreshold: defaultWarningThreshold,
+        warningColor: defaultWarningColor
+    }); 
 
     // Reset preview font family by removing the dynamic style tag
     const styleTag = document.getElementById('dynamic-font-preview');
     if (styleTag) styleTag.remove();
 
     // Revert preview font family to the default selected one
-    document.getElementById('timePreview').style.fontFamily = 'Arial, sans-serif'; // Default after reset
+    document.getElementById('timePreview').style.fontFamily = defaultFamily; // Use the defaultFamily variable
 
     // Re-apply current settings to ensure preview updates visually
     applyFont();
