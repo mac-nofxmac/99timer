@@ -281,7 +281,11 @@ function resetFont() {
     document.getElementById('fontSizeInput').value = defaultSize;
     document.getElementById('fontColorInput').value = defaultColor;
     document.getElementById('fontFamilySelect').value = defaultFamily;
-    document.getElementById('warningThresholdInput').value = defaultWarningThreshold;
+    const warnMin = document.getElementById('warningThresholdMinutes');
+    const warnSec = document.getElementById('warningThresholdSeconds');
+    if (warnMin) warnMin.value = 0;
+    if (warnSec) warnSec.value = 30;
+
     document.getElementById('warningColorInput').value = defaultWarningColor;
 
     // Emit regular font settings and null out custom font
